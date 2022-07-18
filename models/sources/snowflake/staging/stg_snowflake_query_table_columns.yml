@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: stg_snowflake_query_table_columns
+    description: |
+      Snowflake queries' uniquely accessed table and view columns. A row of this table represents a reference 
+      to a table or view's column by a Snowflake query. Further explained by Snowflake's documentation.
+      It is necessary to re-flatten the direct_objects_accessed blob because the usage of distinct in 
+      stg_snowflake_query_tables may have destroyed different sets of columns across query-table duplicates.
+      https://docs.snowflake.com/en/sql-reference/account-usage/access_history.html#label-acctuse-view-access-history-columns
+    columns:
+      - name: query_table_column_key
+        description: |
+          Unique surrogate key combining the query_id and unique accessed table or view's database.schema.table.column reference.
+        tests:
+          - unique_not_null_recently:
+              time_column: start_at_utc
+              lookback_days: 7
+
+      - name: query_table_key
+        description: |
+          Foreign key combining the query_id and unique accessed table or view's database.schema.table.
+        tests:
+          - not_null_recently:
+              time_column: start_at_utc
+              lookback_days: 7
+
+      - name: query_id
+        description: |
+          Foreign key identifier of a Snowflake query.
+        tests:
+          - not_null_recently:
+              time_column: start_at_utc
+              lookback_days: 7
+
+      - name: table_key
+        description: |
+          Foreign key identifier of a table or view's database.schema.table.
+        tests:
+          - not_null_recently:
+              time_column: start_at_utc
+              lookback_days: 7
+
+      - name: table_column_key
+        description: |
+          Foreign key identifier of a table or view's database.schema.table.column reference.
+        tests:
+          - not_null_recently:
+              time_column: start_at_utc
+              lookback_days: 7

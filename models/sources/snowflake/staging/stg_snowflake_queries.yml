@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: stg_snowflake_queries
+    description: |
+      Snowflake query history. Reference provided by Snowflake.
+      https://docs.snowflake.com/en/sql-reference/account-usage/query_history.html
+    columns:
+      - name: query_id
+        description: |
+          Primary key identifier for a Snowflake query.
+        tests:
+          - unique_not_null_recently:
+              time_column: start_at_utc
+              lookback_days: 7
+
+      - name: query_type
+        description: |
+          The type of query, like 'select'. There are a wide variety (30+) of query types.

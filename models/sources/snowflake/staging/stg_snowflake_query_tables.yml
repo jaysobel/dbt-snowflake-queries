@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: stg_snowflake_query_tables
+    description: |
+      Snowflake queries' uniquely accessed objects (tables and views). A row of this table represents a reference 
+      to a table or view by a Snowflake query. Further explained by Snowflake's documentation.
+      https://docs.snowflake.com/en/sql-reference/account-usage/access_history.html#label-acctuse-view-access-history-columns
+    columns:
+      - name: query_table_key
+        description: |
+          Unique surrogate key identifying the query_id and unique accessed table or view's database.schema.table reference.
+        tests:
+          - unique_not_null_recently:
+              time_column: start_at_utc
+              lookback_days: 7
+
+      - name: query_id
+        description: |
+          Foreign key identifier of a the Snowflake query.
+        tests:
+          - not_null_recently:
+              time_column: start_at_utc
+              lookback_days: 7
+
+      - name: table_key
+        description: |
+          Foreign key identifier of a table or view's database.schema.table reference.
+        tests:
+          - not_null_recently:
+              time_column: start_at_utc
+              lookback_days: 7

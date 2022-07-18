@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  - name: snowflake_internal
+    database: snowflake
+    schema: account_usage
+
+    tables:
+      - name: access_history
+        description: "https://docs.snowflake.com/en/user-guide/access-history.html"
+
+      - name: query_history
+        description: "https://docs.snowflake.com/en/sql-reference/account-usage/query_history.html"
+
+      - name: tables
+        description: "https://docs.snowflake.com/en/sql-reference/account-usage/tables.html"
+
+      - name: columns
+        description: https://docs.snowflake.com/en/sql-reference/account-usage/columns.html
