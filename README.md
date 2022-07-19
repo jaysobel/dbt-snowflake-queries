@@ -22,6 +22,10 @@ This partial dbt repo produces a staging layer of models at and around the query
 
 In theory, these models can be used to derive column-level lineage within a dbt project. By filtering to DDL/DML commands issued by dbt users toward production schemas and further unpacking the `access_history.objects_modified` array, one could determine the tables and columns relevant to building each model.
 
+However, the accessed column arrays are a reflection of query text rather than interpretted references. This means that any `select * from my_table` will be tracked as actually referencing all column.s The popular "import-style CTEs" will interfere with this insight.
+
+[Here's a post in dbt Slack on the issue.](https://getdbt.slack.com/archives/C2JRRQDTL/p1658242587243599)
+
 ## Notes, Disclaimers, Considerations
 
 This code has been minimally run/tested.
