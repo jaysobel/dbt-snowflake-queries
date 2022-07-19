@@ -45,7 +45,6 @@ with queries as (
     , queued_repair_time / 1000 as queued_repair_seconds
     , queued_overload_time / 1000 as queued_overload_seconds
     , transaction_blocked_time / 1000 as transaction_blocked_seconds
-    , credits_used_cloud_services as credits_used
     -- many niche fields are excluded
 
   from queries
