@@ -12,10 +12,10 @@ This partial dbt repo unifies `query_history` and `access_history` to present a 
 * `stg_snowflake_tables` (includes views)
 * `stg_snowflake_table_columns`
 
-## Steps to Use
+## Setup Steps
 
-1. In all models, uncomment and complete `database` and `schema` name filter lists (or delete them). It assumed that not all databases and schemas in your instance are of-interest.
-2. In `stg_snowflake_queries` fill-in the definition of `is_tooling_user` (tools can add noise to usage). Or add your own fields!
+1. In all models, uncomment and complete `database` and `schema` name filter lists (or delete them). It is assumed that not all databases and schemas in your instance are of-interest (ex: development DBs or schemas). Queries and their table granular, or column granular references can produce a large dataset. Limiting the rows is a good idea.
+2. In `stg_snowflake_queries` fill-in the definition of `is_tooling_user`, or substitute your own means of filtering out noisey automated queries.
 
 ## Column-level Lineage
 
@@ -23,7 +23,7 @@ In theory, these models can be used to derive column-level lineage within a dbt 
 
 ## Disclaimer
 
-I have not attempted to run this code since the last modifications were made.
+This code has been minimally run/tested since its last modification. 
 
 
 #### Footnotes

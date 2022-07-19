@@ -32,7 +32,7 @@ with snowflake_access_history as (
     -- and database_name in ('') -- Databases of interest, uppercase, ex: PROD
 
     {% if is_incremental() %}
-      and queries.start_at_utc > (select dateadd('day', -1, max(start_at_utc)) from {{ this }})
+      and queries.start_at_utc > (select dateadd('day', -1, max(t.start_at_utc)) from {{ this }} t)
     {% endif %}
 
     {% if target.name == 'dev' or target.name == 'ci' %}

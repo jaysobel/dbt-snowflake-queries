@@ -28,7 +28,7 @@ with access_history as (
   where true
   
   {% if is_incremental() %}
-    and start_at_utc > (select dateadd('day', -1, max(start_at_utc)) from {{ this }})
+    and start_at_utc > (select dateadd('day', -1, max(t.start_at_utc)) from {{ this }} t)
   {% endif %}
 
   {% if target.name == 'dev' or target.name == 'ci' %}
