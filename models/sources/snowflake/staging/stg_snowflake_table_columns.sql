@@ -26,7 +26,7 @@ with columns as (
   
   where true
     -- and table_catalog in ('') -- Databases of interest, uppercase, ex: PROD
-    -- and table_schema in ('') -- Schemas of interest (across above databases, uppercase)
+    -- and table_schema in ('') -- Schemas of interest (within databases above, uppercase)
     and deleted is null -- exclude deleted columns (deleted is a timestamp field)
 
 )
