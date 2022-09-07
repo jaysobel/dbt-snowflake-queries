@@ -35,10 +35,6 @@ with snowflake_access_history as (
       and queries.start_at_utc > (select dateadd('day', -1, max(t.start_at_utc)) from {{ this }} t)
     {% endif %}
 
-    {% if target.name == 'dev' or target.name == 'ci' %}
-      and queries.start_at_utc >= dateadd('day', -28, current_timestamp)
-    {% endif %}
-
 )
 
 , keyed as (
