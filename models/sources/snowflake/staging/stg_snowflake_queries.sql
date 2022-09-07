@@ -17,10 +17,11 @@ with queries as (
   select 
     query_id
     , lower(query_text) as query_text
-    , database_id
-    , lower(database_name) as database_name
-    , schema_id
-    , lower(schema_name) as schema_name
+    -- database_ and schema_ are nullable, and the relationship to query is complex.
+    -- , database_id
+    -- , lower(database_name) as database_name
+    -- , schema_id
+    -- , lower(schema_name) as schema_name
     , lower(query_type) as query_type
     , session_id
     , lower(user_name) as user_name
@@ -55,10 +56,6 @@ with queries as (
 
     {% if is_incremental() %}
       and start_at_utc > (select dateadd('day', -1, max(t.start_at_utc)) from {{ this }} t)
-    {% endif %}
-
-    {% if target.name == 'dev' or target.name == 'ci' %}
-      and start_at_utc >= dateadd('day', -28, current_timestamp)
     {% endif %}
 
 )
