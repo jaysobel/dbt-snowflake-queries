@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: snowflake_account_usage
+    description: Snowflake account-level object metadata and historical usage views.
+    database: "{{ var('account_usage_database', 'snowflake') }}"
+    schema: "{{ var('account_usage_schema', 'account_usage') }}"
+    tables:
+      - name: access_history
+        description: Query-to-object and query-to-column access records. Requires Snowflake Enterprise Edition or higher.
+      - name: query_history
+        description: Account query execution history retained by Snowflake for 365 days.
+      - name: tables
+        description: Current and deleted table and view metadata. Package models retain current objects only.
+      - name: columns
+        description: Current and deleted table and view column metadata. Package models retain current columns only.
