@@ -54,12 +54,12 @@ Snowflake retains these [Account Usage](https://docs.snowflake.com/en/sql-refere
 
 ## Installation
 
-Until the first tagged release, install from Git:
+Install the tagged release from Git:
 
 ```yaml
 packages:
   - git: https://github.com/jaysobel/dbt-snowflake-queries.git
-    revision: main
+    revision: 1.0.0
 ```
 
 Then run `dbt deps` and select the package:
@@ -68,7 +68,7 @@ Then run `dbt deps` and select the package:
 dbt build --select package:dbt_snowflake_queries
 ```
 
-Pin a release tag rather than `main` once version 1.0.0 is published.
+Package Hub installation will also be available after the package's dbt Hub registration is accepted.
 
 ## Configuration
 
