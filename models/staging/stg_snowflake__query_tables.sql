@@ -2,7 +2,7 @@
   config(
     materialized='incremental',
     incremental_strategy='merge',
-    unique_key=['query_id', 'table_column_sk'],
+    unique_key=['query_id', 'table_sk', 'access_type'],
     on_schema_change='sync_all_columns'
   )
 }}
@@ -50,7 +50,7 @@ with access_history as (
 
 )
 
-, column_access as (
+, normalized as (
 
   select
       query_id
@@ -58,41 +58,32 @@ with access_history as (
     , user_name
     , access_type
     , object_accessed:objectId::number as table_id
-    , columns.value:columnId::number as column_id
     , lower(object_accessed:objectDomain::text) as object_domain
     , lower(object_accessed:objectName::text) as table_sk
     , lower(split_part(object_accessed:objectName::text, '.', 1)) as database_name
     , lower(split_part(object_accessed:objectName::text, '.', 2)) as schema_name
     , lower(split_part(object_accessed:objectName::text, '.', 3)) as table_name
-    , lower(columns.value:columnName::text) as column_name
-    , concat(lower(object_accessed:objectName::text), '.', lower(columns.value:columnName::text)) as table_column_sk
   from object_access
-  , lateral flatten(object_accessed:columns) as columns
   where lower(object_accessed:objectDomain::text) in (
     'table', 'view', 'materialized view', 'external table', 'event table', 'dynamic table', 'iceberg table', 'hybrid table'
   )
     and object_accessed:objectName::text is not null
-    and columns.value:columnName::text is not null
 
 )
 
 select
     query_id
-  , table_column_sk
   , table_sk
+  , access_type
   , max(table_id) as table_id
-  , max(column_id) as column_id
   , max(database_name) as database_name
   , max(schema_name) as schema_name
   , max(table_name) as table_name
-  , max(column_name) as column_name
   , max(object_domain) as object_domain
   , max(start_at) as start_at
   , max(user_name) as user_name
-  , count_if(access_type = 'direct') > 0 as is_direct_access
-  , count_if(access_type = 'base') > 0 as is_base_access
 
-from column_access
+from normalized
 where true
   {{ dbt_snowflake_queries__list_filter(
       'database_name',

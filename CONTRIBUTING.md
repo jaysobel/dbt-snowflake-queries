@@ -1,6 +1,6 @@
 # Contributing
 
-Issues and pull requests are welcome. Changes should preserve the five public model grains and keep the mart intentionally curated.
+Issues and pull requests are welcome. Changes should preserve the five public model grains, keep the mart intentionally curated, and place source cleanup and incremental mechanics in the staging layer.
 
 ## Parse compatibility
 
@@ -12,7 +12,7 @@ CI runs the integration project under supported dbt Core versions and dbt Fusion
 
 ## Snowflake integration tests
 
-The integration project creates synthetic Account Usage fixtures in an isolated schema, builds all five package models, and runs exact data tests. Pass the test database without committing account-specific configuration:
+The integration project creates synthetic Account Usage fixtures in an isolated schema, builds the five staging and five mart models, and runs exact data tests. Pass the test database without committing account-specific configuration:
 
 ```shell
 dbt run --project-dir integration_tests --profile <snowflake_profile> --select path:models/setup

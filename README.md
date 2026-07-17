@@ -15,7 +15,7 @@ This is a usage mart, not a lineage parser. It answers questions such as:
 
 ## Models
 
-The package creates exactly five relations:
+The package exposes five public mart models:
 
 | Model | Grain | Purpose |
 | --- | --- | --- |
@@ -26,6 +26,18 @@ The package creates exactly five relations:
 | `dim_snowflake__table_columns` | Current table/view column | Type, nullability, identity, virtual-expression, and documentation context. |
 
 `table_sk` is the lowercased fully qualified `database.schema.table` name. `table_column_sk` appends the lowercased column name. These readable identifiers make the facts and dimensions straightforward to join and inspect.
+
+Those marts are views over five supporting staging models:
+
+| Model | Materialization | Responsibility |
+| --- | --- | --- |
+| `stg_snowflake__queries` | Incremental | Type, rename, filter, and incrementally capture Query History; attach parent/root query identifiers. |
+| `stg_snowflake__query_tables` | Incremental | Flatten and normalize Access History objects while retaining separate direct/base observations. |
+| `stg_snowflake__query_table_columns` | Incremental | Flatten and normalize Access History columns while retaining separate direct/base observations. |
+| `stg_snowflake__tables` | Table | Type and normalize the current table/view catalog snapshot. |
+| `stg_snowflake__table_columns` | Table | Type and normalize the current table/view column snapshot. |
+
+The staging layer is the ingestion boundary: it owns source-specific cleanup, typing, filtering, UTC timestamp normalization, and incremental processing. The mart layer owns the stable analytical grains and direct/base usage semantics. Keeping the public marts as views makes that contract inexpensive to evolve and avoids storing the same data twice.
 
 ## Requirements
 
@@ -76,7 +88,7 @@ vars:
 
 Empty inclusion lists mean "include everything." Values are compared case-insensitively. Filters apply during model construction rather than after materialization.
 
-The query and access facts are incremental and reprocess a configurable overlap to capture delayed Account Usage records. Run them with `--full-refresh` when changing inclusion filters or history windows.
+The query and access staging models are incremental and reprocess a configurable overlap to capture delayed Account Usage records. Run them with `--full-refresh` when changing inclusion filters or history windows. The five public mart models are views over those persisted staging relations.
 
 ### Query text
 

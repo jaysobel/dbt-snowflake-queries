@@ -1,0 +1,80 @@
+version: 2
+
+models:
+  - name: stg_snowflake__queries
+    description: Incremental, typed, and analytics-named Snowflake query history enriched with parent and root query identifiers.
+    columns:
+      - name: query_id
+        description: Snowflake's identifier for the query execution.
+        data_tests: [unique, not_null]
+      - name: start_at
+        description: Query start timestamp normalized to UTC and stored without a timezone.
+        data_tests: [not_null]
+
+  - name: stg_snowflake__query_tables
+    description: Incremental normalized Access History objects at query, table or view, and access-type grain.
+    data_tests:
+      - dbt_snowflake_queries__unique_combination:
+          arguments:
+            combination_of_columns: [query_id, table_sk, access_type]
+    columns:
+      - name: query_id
+        description: Snowflake query execution identifier.
+        data_tests: [not_null]
+      - name: table_sk
+        description: Lowercased fully qualified database.schema.table identifier.
+        data_tests: [not_null]
+      - name: access_type
+        description: Whether Snowflake reported direct or base access.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [direct, base]
+
+  - name: stg_snowflake__query_table_columns
+    description: Incremental normalized Access History columns at query, table column, and access-type grain.
+    data_tests:
+      - dbt_snowflake_queries__unique_combination:
+          arguments:
+            combination_of_columns: [query_id, table_column_sk, access_type]
+    columns:
+      - name: query_id
+        description: Snowflake query execution identifier.
+        data_tests: [not_null]
+      - name: table_column_sk
+        description: Lowercased fully qualified database.schema.table.column identifier.
+        data_tests: [not_null]
+      - name: table_sk
+        description: Lowercased fully qualified database.schema.table identifier.
+        data_tests: [not_null]
+      - name: access_type
+        description: Whether Snowflake reported direct or base access.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [direct, base]
+
+  - name: stg_snowflake__tables
+    description: Current Snowflake tables and views with source types normalized and analytics-friendly names.
+    columns:
+      - name: table_sk
+        description: Lowercased fully qualified database.schema.table identifier.
+        data_tests: [unique, not_null]
+      - name: table_id
+        description: Snowflake internal identifier for the table or view.
+        data_tests: [unique, not_null]
+
+  - name: stg_snowflake__table_columns
+    description: Current Snowflake table and view columns with normalized types, flags, and analytics-friendly names.
+    columns:
+      - name: table_column_sk
+        description: Lowercased fully qualified database.schema.table.column identifier.
+        data_tests: [unique, not_null]
+      - name: table_sk
+        description: Lowercased fully qualified database.schema.table identifier.
+        data_tests: [not_null]
+      - name: column_id
+        description: Snowflake internal identifier for the column.
+        data_tests: [unique, not_null]
