@@ -1,5 +1,13 @@
 
 target/
 dbt_packages/
+dbt_internal_packages/
 logs/
 .DS_Store
+.user.yml
+package-lock.yml
+integration_tests/dbt_packages/
+integration_tests/dbt_internal_packages/
+integration_tests/logs/
+integration_tests/package-lock.yml
+integration_tests/target/

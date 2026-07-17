@@ -1,0 +1,105 @@
+version: 2
+
+models:
+  - name: fct_snowflake__queries
+    description: One row per Snowflake query with curated execution context, pattern hashes, timings, and workload measures. Database and schema context are intentionally omitted because a query can access objects across both boundaries.
+    columns:
+      - name: query_id
+        description: Snowflake's identifier for the query execution.
+        data_tests: [unique, not_null]
+      - name: query_text
+        description: Raw query text, or null when include_query_text is disabled. Treat this column as potentially sensitive.
+      - name: query_hash
+        description: Hash of Snowflake's canonicalized query text. Interpret together with query_hash_version.
+      - name: query_parameterized_hash
+        description: Hash of the query after supported predicate literals are parameterized. Interpret together with query_parameterized_hash_version.
+      - name: is_tooling_user
+        description: True when user_name appears in the configured tooling_users list.
+      - name: start_at
+        description: Query start timestamp normalized to UTC and stored without a timezone.
+      - name: end_at
+        description: Query end timestamp normalized to UTC and stored without a timezone.
+      - name: duration_seconds
+        description: Total elapsed query time in seconds.
+      - name: queued_seconds
+        description: Total provisioning, repair, and overload queue time in seconds.
+      - name: fraction_scanned_from_cache
+        description: Fraction from 0 to 1 of scanned data served from local disk cache.
+      - name: rows_modified
+        description: Sum of rows inserted, updated, and deleted by the query.
+
+  - name: fct_snowflake__query_tables
+    description: One row per query and accessed table or view, preserving whether access was direct, base, or both.
+    data_tests:
+      - dbt_snowflake_queries__unique_combination:
+          arguments:
+            combination_of_columns: [query_id, table_sk]
+    columns:
+      - name: query_id
+        description: Snowflake query execution identifier.
+        data_tests: [not_null]
+      - name: table_sk
+        description: Lowercased fully qualified database.schema.table identifier.
+        data_tests: [not_null]
+      - name: query_start_at
+        description: Query start timestamp from Access History, normalized to UTC; matches start_at in fct_snowflake__queries for the same query_id.
+      - name: is_direct_access
+        description: True when the object was explicitly named by the query.
+      - name: is_base_access
+        description: True when the object was an underlying base object needed to execute the query.
+
+  - name: fct_snowflake__query_table_columns
+    description: One row per query and accessed table column, preserving whether access was direct, base, or both.
+    data_tests:
+      - dbt_snowflake_queries__unique_combination:
+          arguments:
+            combination_of_columns: [query_id, table_column_sk]
+    columns:
+      - name: query_id
+        description: Snowflake query execution identifier.
+        data_tests: [not_null]
+      - name: table_column_sk
+        description: Lowercased fully qualified database.schema.table.column identifier.
+        data_tests: [not_null]
+      - name: table_sk
+        description: Lowercased fully qualified database.schema.table identifier.
+        data_tests: [not_null]
+      - name: query_start_at
+        description: Query start timestamp from Access History, normalized to UTC; matches start_at in fct_snowflake__queries for the same query_id.
+      - name: is_direct_access
+        description: True when the table column was explicitly accessed by the query.
+      - name: is_base_access
+        description: True when the table column was an underlying base column needed to execute the query.
+
+  - name: dim_snowflake__tables
+    description: Current Snowflake tables and views with deliberately curated ownership, type, size, and lifecycle attributes.
+    columns:
+      - name: table_sk
+        description: Lowercased fully qualified database.schema.table identifier.
+        data_tests: [unique, not_null]
+      - name: table_type
+        description: Normalized Snowflake object type; BASE TABLE is presented as table.
+      - name: storage_bytes
+        description: Bytes accessed by a scan of the object; this is not total storage including Time Travel and Fail-safe.
+      - name: last_altered_at
+        description: UTC timestamp of the most recent DML, DDL, or background metadata operation.
+      - name: last_ddl_at
+        description: UTC timestamp of the most recent DDL operation.
+
+  - name: dim_snowflake__table_columns
+    description: Current Snowflake table and view columns with curated type, nullability, identity, expression, and documentation attributes.
+    columns:
+      - name: table_column_sk
+        description: Lowercased fully qualified database.schema.table.column identifier.
+        data_tests: [unique, not_null]
+      - name: table_sk
+        description: Lowercased fully qualified database.schema.table identifier.
+        data_tests: [not_null]
+      - name: data_type
+        description: Standard Snowflake data type.
+      - name: data_type_alias
+        description: Original type alias used to define the column, when Snowflake provides it.
+      - name: column_kind
+        description: Regular, virtual, or partition-column classification supplied by Snowflake.
+      - name: column_expression
+        description: SQL expression for a virtual column; null for ordinary columns.

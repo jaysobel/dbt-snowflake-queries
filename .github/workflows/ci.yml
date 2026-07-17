@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dbt-core:
+    name: dbt Core ${{ matrix.dbt-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        dbt-version: ["1.10", "1.12"]
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: astral-sh/setup-uv@v8.3.2
+        with:
+          enable-cache: false
+      - name: Parse the integration project
+        env:
+          DBT_VERSION: ${{ matrix.dbt-version }}
+        run: |
+          DBT_UPPER="${DBT_VERSION%.*}.$((${DBT_VERSION##*.} + 1))"
+          uvx --python 3.11 --from "dbt-core>=${DBT_VERSION},<${DBT_UPPER}" --with "dbt-snowflake>=${DBT_VERSION},<${DBT_UPPER}" dbt deps --project-dir integration_tests --profiles-dir integration_tests/ci_profiles
+          uvx --python 3.11 --from "dbt-core>=${DBT_VERSION},<${DBT_UPPER}" --with "dbt-snowflake>=${DBT_VERSION},<${DBT_UPPER}" dbt parse --project-dir integration_tests --profiles-dir integration_tests/ci_profiles
+
+  fusion:
+    name: dbt Fusion
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: astral-sh/setup-uv@v8.3.2
+        with:
+          enable-cache: false
+      - name: Parse the integration project
+        run: |
+          uvx --python 3.11 --pre --from dbt dbt deps --project-dir integration_tests --profiles-dir integration_tests/ci_profiles
+          uvx --python 3.11 --pre --from dbt dbt parse --project-dir integration_tests --profiles-dir integration_tests/ci_profiles

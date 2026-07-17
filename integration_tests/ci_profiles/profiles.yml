@@ -1,0 +1,12 @@
+dbt_snowflake_queries_integration:
+  target: ci
+  outputs:
+    ci:
+      type: snowflake
+      account: example
+      user: example
+      authenticator: externalbrowser
+      database: example
+      schema: example
+      warehouse: example
+      threads: 1

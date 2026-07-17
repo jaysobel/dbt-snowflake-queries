@@ -1,0 +1,34 @@
+name: dbt_snowflake_queries_integration
+version: 1.0.0
+config-version: 2
+
+profile: dbt_snowflake_queries_integration
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+models:
+  dbt_snowflake_queries_integration:
+    setup:
+      +materialized: table
+      +schema: dbt_snowflake_queries_source
+  dbt_snowflake_queries:
+    +schema: dbt_snowflake_queries_package
+
+vars:
+  dbt_snowflake_queries:
+    account_usage_database: example
+    account_usage_schema: dbt_snowflake_queries_source
+    query_history_lookback_days: 365
+    access_history_lookback_days: 365
+    incremental_lookback_days: 3
+    include_query_text: true
+    tooling_users: [dbt_service]
+    included_databases: []
+    excluded_databases: []
+    included_schemas: []
+    excluded_schemas: []
+
+target-path: target
+clean-targets: ["target", "dbt_packages", "dbt_internal_packages", "logs"]
