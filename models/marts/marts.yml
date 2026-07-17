@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: fct_snowflake__queries
-    description: One row per Snowflake query with curated execution context, pattern hashes, timings, and workload measures.
+    description: One row per Snowflake query with curated execution context, pattern hashes, timings, and workload measures. Database and schema context are intentionally omitted because a query can access objects across both boundaries.
     columns:
       - name: query_id
         description: Snowflake's identifier for the query execution.
@@ -41,10 +41,8 @@ models:
       - name: table_sk
         description: Lowercased fully qualified database.schema.table identifier.
         data_tests: [not_null]
-      - name: table_id
-        description: Snowflake internal object identifier when it is available in Access History.
-      - name: object_domain
-        description: Snowflake Access History object domain, such as table or view.
+      - name: query_start_at
+        description: Query start timestamp from Access History, normalized to UTC; matches start_at in fct_snowflake__queries for the same query_id.
       - name: is_direct_access
         description: True when the object was explicitly named by the query.
       - name: is_base_access
@@ -66,8 +64,8 @@ models:
       - name: table_sk
         description: Lowercased fully qualified database.schema.table identifier.
         data_tests: [not_null]
-      - name: column_id
-        description: Snowflake internal column identifier when it is available in Access History.
+      - name: query_start_at
+        description: Query start timestamp from Access History, normalized to UTC; matches start_at in fct_snowflake__queries for the same query_id.
       - name: is_direct_access
         description: True when the table column was explicitly accessed by the query.
       - name: is_base_access
@@ -78,9 +76,6 @@ models:
     columns:
       - name: table_sk
         description: Lowercased fully qualified database.schema.table identifier.
-        data_tests: [unique, not_null]
-      - name: table_id
-        description: Snowflake internal identifier for the table or view.
         data_tests: [unique, not_null]
       - name: table_type
         description: Normalized Snowflake object type; BASE TABLE is presented as table.
@@ -100,9 +95,6 @@ models:
       - name: table_sk
         description: Lowercased fully qualified database.schema.table identifier.
         data_tests: [not_null]
-      - name: column_id
-        description: Snowflake internal identifier for the column.
-        data_tests: [unique, not_null]
       - name: data_type
         description: Standard Snowflake data type.
       - name: data_type_alias

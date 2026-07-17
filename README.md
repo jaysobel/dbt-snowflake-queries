@@ -27,6 +27,8 @@ The package exposes five public mart models:
 
 `table_sk` is the lowercased fully qualified `database.schema.table` name. `table_column_sk` appends the lowercased column name. These readable identifiers make the facts and dimensions straightforward to join and inspect.
 
+The public marts use those readable keys instead of Snowflake's numeric table and column IDs. The fan-out facts remain narrow—query and object keys, `query_start_at`, and direct/base flags—while descriptive object attributes live in the dimensions and query-granular attributes live in `fct_snowflake__queries`. Database and schema context are omitted from the query fact because a single query can cross both boundaries.
+
 Those marts are views over five supporting staging models:
 
 | Model | Materialization | Responsibility |
@@ -38,6 +40,8 @@ Those marts are views over five supporting staging models:
 | `stg_snowflake__table_columns` | Table | Type and normalize the current table/view column snapshot. |
 
 The staging layer is the ingestion boundary: it owns source-specific cleanup, typing, filtering, UTC timestamp normalization, and incremental processing. The mart layer owns the stable analytical grains and direct/base usage semantics. Keeping the public marts as views makes that contract inexpensive to evolve and avoids storing the same data twice.
+
+Snowflake's native `table_id` and `column_id` values remain in staging for source-level debugging, but are not part of the public mart contract.
 
 ## Requirements
 
@@ -86,7 +90,7 @@ vars:
     excluded_schemas: [information_schema]
 ```
 
-Empty inclusion lists mean "include everything." Values are compared case-insensitively. Filters apply during model construction rather than after materialization.
+Empty inclusion lists mean "include everything." Values are compared case-insensitively. Database and schema filters apply to accessed objects and catalog dimensions during staging. They do not filter Query History by its session context because a query can access objects across database and schema boundaries.
 
 The query and access staging models are incremental and reprocess a configurable overlap to capture delayed Account Usage records. Run them with `--full-refresh` when changing inclusion filters or history windows. The five public mart models are views over those persisted staging relations.
 

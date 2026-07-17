@@ -35,6 +35,26 @@ with failures as (
     where query_id = 'q2' and table_sk = 'prod.raw.orders'
   ), false)
 
+  union all
+
+  select 'query table start matches query fact'
+  where exists (
+    select 1
+    from {{ ref('fct_snowflake__query_tables') }} as query_tables
+    inner join {{ ref('fct_snowflake__queries') }} as queries using (query_id)
+    where query_tables.query_start_at <> queries.start_at
+  )
+
+  union all
+
+  select 'query column start matches query fact'
+  where exists (
+    select 1
+    from {{ ref('fct_snowflake__query_table_columns') }} as query_columns
+    inner join {{ ref('fct_snowflake__queries') }} as queries using (query_id)
+    where query_columns.query_start_at <> queries.start_at
+  )
+
 )
 
 select * from failures

@@ -1,6 +1,6 @@
 select
     'q1'::text as query_id
-  , dateadd('hour', -2, current_timestamp)::timestamp_ltz as query_start_time
+  , dateadd('hour', -2, date_trunc('hour', current_timestamp))::timestamp_ltz as query_start_time
   , 'ANALYST'::text as user_name
   , parse_json($$[
       {"objectDomain":"Table","objectId":1,"objectName":"PROD.ANALYTICS.ORDERS","columns":[
@@ -27,7 +27,7 @@ union all
 
 select
     'q2'::text as query_id
-  , dateadd('hour', -1, current_timestamp)::timestamp_ltz as query_start_time
+  , dateadd('hour', -1, date_trunc('hour', current_timestamp))::timestamp_ltz as query_start_time
   , 'DBT_SERVICE'::text as user_name
   , parse_json($$[
       {"objectDomain":"View","objectId":2,"objectName":"PROD.ANALYTICS.ORDER_SUMMARY","columns":[

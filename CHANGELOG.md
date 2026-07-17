@@ -19,6 +19,10 @@ All notable changes to this project are documented here. The project follows [Se
 - Replaced opaque hashed relationship keys with readable lowercased fully qualified `table_sk` and `table_column_sk` values.
 - Preserved direct and base object access as separate flags at a single analytical grain.
 - Moved source typing, filtering, JSON flattening, and incremental processing into staging; public facts and dimensions are now thin views.
+- Narrowed the public marts around readable `table_sk` and `table_column_sk` relationships; Snowflake numeric object IDs remain in staging only.
+- Removed database/schema context from the query fact and query-granular user attributes from the fan-out facts.
+- Scoped database/schema filters to accessed objects and catalog dimensions instead of Query History session context.
+- Renamed fan-out timestamps to `query_start_at` and verified they match the query fact's `start_at` for each query.
 - Curated Snowflake metadata fields around operational usage rather than mirroring every source column.
 
 ### Fixed

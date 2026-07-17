@@ -23,8 +23,8 @@ with base_query as (
     , 'SUCCESS'::text as execution_status
     , null::text as error_code
     , null::text as error_message
-    , dateadd('hour', -2, current_timestamp)::timestamp_ltz as start_time
-    , dateadd('second', 2, dateadd('hour', -2, current_timestamp))::timestamp_ltz as end_time
+    , dateadd('hour', -2, date_trunc('hour', current_timestamp))::timestamp_ltz as start_time
+    , dateadd('second', 2, dateadd('hour', -2, date_trunc('hour', current_timestamp)))::timestamp_ltz as end_time
     , 2000::number as total_elapsed_time
     , 100::number as compilation_time
     , 1750::number as execution_time
@@ -71,8 +71,8 @@ with base_query as (
     , 'pattern_orders_by_id'::text as query_parameterized_hash
     , 102::number as session_id
     , 'DBT_SERVICE'::text as user_name
-    , dateadd('hour', -1, current_timestamp)::timestamp_ltz as start_time
-    , dateadd('second', 3, dateadd('hour', -1, current_timestamp))::timestamp_ltz as end_time
+    , dateadd('hour', -1, date_trunc('hour', current_timestamp))::timestamp_ltz as start_time
+    , dateadd('second', 3, dateadd('hour', -1, date_trunc('hour', current_timestamp)))::timestamp_ltz as end_time
     , 3000::number as total_elapsed_time
     , 2::number as rows_produced
   )

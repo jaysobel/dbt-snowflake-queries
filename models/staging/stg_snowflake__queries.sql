@@ -27,17 +27,6 @@ with query_history as (
     )
   {% endif %}
 
-  {{ dbt_snowflake_queries__list_filter(
-      'database_name',
-      var('included_databases', []),
-      var('excluded_databases', [])
-  ) }}
-  {{ dbt_snowflake_queries__list_filter(
-      'schema_name',
-      var('included_schemas', []),
-      var('excluded_schemas', [])
-  ) }}
-
 )
 
 , access_history as (
